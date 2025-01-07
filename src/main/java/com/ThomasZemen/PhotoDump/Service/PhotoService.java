@@ -71,7 +71,7 @@ public class PhotoService {
     }
 
     private void validateFile(MultipartFile file) {
-        if (file.isEmpty()) {
+        if (file.isEmpty() || file == null) {
             throw new PhotoAlbumException("Failed to store empty file", HttpStatus.BAD_REQUEST);
         }
 

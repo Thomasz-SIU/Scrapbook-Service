@@ -19,8 +19,6 @@ public class Photo {
 
     private String description;
 
-    private String imageUrl;
-
     private String fileName;    // Store the actual file name
 
     private String contentType; // Store the image MIME type
@@ -40,10 +38,10 @@ public class Photo {
         uploadedAt = LocalDateTime.now();
     }
 
-    // Transient field for full URL
-    @Transient
-    public String getImageUrl() {
-        if (fileName == null) return null;
-        return "/uploads/" + fileName;
-    }
+//    // Transient field for full URL
+//    @Transient
+//    public String getImageUrl() {
+//        if (fileName == null) return null;
+//        return "/uploads/" + fileName;
+//    }
 }

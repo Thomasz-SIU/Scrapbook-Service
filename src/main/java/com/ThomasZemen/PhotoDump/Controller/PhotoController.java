@@ -34,7 +34,13 @@ public class PhotoController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Photo> uploadPhoto(
             @RequestPart("file") MultipartFile file,
-            @Valid @ModelAttribute PhotoDTO photoDTO) {
+            @RequestPart("title") String title,
+            @RequestPart(value = "description", required = false) String description,
+            @RequestPart("albumId") String albumId) {
+        PhotoDTO photoDTO = new PhotoDTO();
+        photoDTO.setTitle(title);
+        photoDTO.setDescription(description);
+        photoDTO.setAlbumId(Long.parseLong(albumId)); //must
         return ResponseEntity.ok(photoService.savePhoto(file, photoDTO));
     }
 

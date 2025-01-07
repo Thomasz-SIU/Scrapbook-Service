@@ -14,9 +14,6 @@ public class PhotoDTO {
     @Size(max = 500, message = "Description cannot exceed 500 characters")
     private String description;
 
-    @NotBlank(message = "Image URL is required")
-    private String imageUrl;
-
     @NotNull(message = "Album ID is required")
     private Long albumId;
 }
