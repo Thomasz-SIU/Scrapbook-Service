@@ -1,47 +1,32 @@
 package com.ThomasZemen.PhotoDump.Model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-
-
-@Entity
 @Data
 public class Photo {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
-
     private String description;
-
-    private String fileName;    // Store the actual file name
-
-    private String contentType; // Store the image MIME type
-
-    private Long fileSize;      // Store the file size in bytes
-
+    private String fileName;
+    private String contentType;
+    private Long fileSize;
     private LocalDateTime uploadedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "album_id")
-    @JsonBackReference
     private Album album;
 
-    @PrePersist
-    protected void onCreate()
+    public static Photo fromResultSet(java.sql.ResultSet resultSet, Album album) throws java.sql.SQLException
     {
-        uploadedAt = LocalDateTime.now();
+        Photo photo = new Photo();
+        photo.setId(resultSet.getLong("id"));
+        photo.setTitle(resultSet.getString("title"));
+        photo.setDescription(resultSet.getString("description"));
+        photo.setFileName(resultSet.getString("file_name"));
+        photo.setContentType(resultSet.getString("content_type"));
+        photo.setFileSize(resultSet.getLong("file_size"));
+        photo.setUploadedAt(resultSet.getTimestamp("uploaded_at").toLocalDateTime());
+        photo.setAlbum(album); //only need album ID for reference
+        //TODO-SEE IF WE CAN REMOVE ALBUM OBJECT
+        return photo;
     }
-
-//    // Transient field for full URL
-//    @Transient
-//    public String getImageUrl() {
-//        if (fileName == null) return null;
-//        return "/uploads/" + fileName;
-//    }
 }
