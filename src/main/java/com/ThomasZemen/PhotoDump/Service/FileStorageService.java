@@ -1,6 +1,7 @@
 package com.ThomasZemen.PhotoDump.Service;
 
 import com.ThomasZemen.PhotoDump.Exception.PhotoAlbumException;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,8 @@ import java.io.IOException;
 import java.nio.file.*;
 //import java.nio.file.attribute.PosixFilePermission;
 //import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -42,24 +45,23 @@ public class FileStorageService {
         }
     }
 
-//    @PostConstruct
-//    public void init() {
-//        try {
-//            Files.createDirectories(fileStorageLocation);
-//
-//            // Set directory permissions (POSIX)
-////            try {
-////                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-x---");
-////                Files.setPosixFilePermissions(fileStorageLocation, perms);
-////            } catch (UnsupportedOperationException e) {
-////                logger.warn("POSIX file permissions not supported on this system");
-////            }
-//
-//            validateStorageDirectory();
-//        } catch (IOException ex) {
-//            throw new PhotoAlbumException("Could not create upload directory!", HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @PostConstruct
+    public void init() {
+        try {
+            Files.createDirectories(fileStorageLocation);
+
+            try {
+                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-x---");
+                Files.setPosixFilePermissions(fileStorageLocation, perms);
+            } catch (UnsupportedOperationException e) {
+                logger.warn("POSIX file permissions not supported on this system");
+            }
+
+            validateStorageDirectory();
+        } catch (IOException ex) {
+            throw new PhotoAlbumException("Could not create upload directory!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     private void validateStorageDirectory() {
         if (!Files.isDirectory(fileStorageLocation)) {
