@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/api/photos")
 public class PhotoController {
+    @Autowired
     private final PhotoService photoService;
     private final Path fileStorageLocation;
     private static final Logger logger = LoggerFactory.getLogger(PhotoController.class);
@@ -49,10 +50,10 @@ public class PhotoController {
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Photo> uploadPhoto(
-            @RequestPart("file") MultipartFile file,
-            @RequestPart("title") String title,
-            @RequestPart(value = "description", required = false) String description,
-            @RequestPart("albumId") String albumId) {
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("title") String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam("albumId") String albumId) {
         try {
             PhotoDTO photoDTO = new PhotoDTO();
             photoDTO.setTitle(title);

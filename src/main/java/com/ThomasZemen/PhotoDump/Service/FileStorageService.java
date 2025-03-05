@@ -12,12 +12,12 @@ import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
+//import java.nio.file.attribute.PosixFilePermission;
+//import java.nio.file.attribute.PosixFilePermissions;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import javax.annotation.PostConstruct;
+//import javax.annotation.PostConstruct;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -42,24 +42,24 @@ public class FileStorageService {
         }
     }
 
-    @PostConstruct
-    public void init() {
-        try {
-            Files.createDirectories(fileStorageLocation);
-
-            // Set directory permissions (POSIX)
-            try {
-                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-x---");
-                Files.setPosixFilePermissions(fileStorageLocation, perms);
-            } catch (UnsupportedOperationException e) {
-                logger.warn("POSIX file permissions not supported on this system");
-            }
-
-            validateStorageDirectory();
-        } catch (IOException ex) {
-            throw new PhotoAlbumException("Could not create upload directory!", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PostConstruct
+//    public void init() {
+//        try {
+//            Files.createDirectories(fileStorageLocation);
+//
+//            // Set directory permissions (POSIX)
+////            try {
+////                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-x---");
+////                Files.setPosixFilePermissions(fileStorageLocation, perms);
+////            } catch (UnsupportedOperationException e) {
+////                logger.warn("POSIX file permissions not supported on this system");
+////            }
+//
+//            validateStorageDirectory();
+//        } catch (IOException ex) {
+//            throw new PhotoAlbumException("Could not create upload directory!", HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     private void validateStorageDirectory() {
         if (!Files.isDirectory(fileStorageLocation)) {
@@ -109,13 +109,13 @@ public class FileStorageService {
                 Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            // Set file permissions (POSIX)
-            try {
-                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-r-----");
-                Files.setPosixFilePermissions(targetLocation, perms);
-            } catch (UnsupportedOperationException e) {
-                logger.warn("POSIX file permissions not supported on this system");
-            }
+//            // Set file permissions (POSIX)
+//            try {
+//                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-r-----");
+//                Files.setPosixFilePermissions(targetLocation, perms);
+//            } catch (UnsupportedOperationException e) {
+//                logger.warn("POSIX file permissions not supported on this system");
+//            }
 
             fileUploadTimestamps.put(fileName, System.currentTimeMillis());
             return fileName;
@@ -130,6 +130,10 @@ public class FileStorageService {
     }
 
     public void deleteFile(String fileName) {
+        /*
+        Consider having this function return a boolean value since
+        this is called in photo controller
+        */
         try {
             Path filePath = fileStorageLocation.resolve(fileName).normalize();
             validateFilePath(filePath);
