@@ -1,30 +1,24 @@
 package com.ThomasZemen.PhotoDump.Model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+
 import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Entity
+
 @Data
 public class Album {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
+    private Long id;
     private String title;
     private String description;
     private LocalDateTime createdAt;
-
-    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private List<Photo> photos;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
+    public static Album fromResultSet(java.sql.ResultSet rs) throws java.sql.SQLException {
+        Album album = new Album();
+        album.setId(rs.getLong("id"));
+        album.setTitle(rs.getString("title"));
+        album.setDescription(rs.getString("description"));
+        album.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        return album;
     }
-
 
 }
