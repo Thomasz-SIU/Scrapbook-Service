@@ -12,7 +12,6 @@ public class Photo {
     private String contentType;
     private Long fileSize;
     private LocalDateTime uploadedAt;
-
     private Album album;
 
     public static Photo fromResultSet(java.sql.ResultSet resultSet, Album album) throws java.sql.SQLException
