@@ -50,6 +50,7 @@ public class ScrapbookRepository implements ScrapbookDAO {
     @Override
     public Optional<Scrapbook> findById(long id) {
         return Optional.empty();
+        ///
     }
 
     @Override
