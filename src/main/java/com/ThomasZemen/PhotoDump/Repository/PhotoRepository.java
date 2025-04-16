@@ -22,32 +22,27 @@ import java.util.Optional;
 @Repository
 @Transactional
 public class PhotoRepository implements PhotoDAO {
-    private final JdbcTemplate jdbcTemplate;
-    private final AlbumDAO albumDAO;
-
     @Autowired
-    public PhotoRepository(JdbcTemplate jdbcTemplate, AlbumDAO albumDAO) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.albumDAO = albumDAO;
-    }
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private AlbumDAO albumDAO;
+
     @Override
-    public Photo update(Photo photo) {
-        if (photo.getId() == null) {
-            throw new IllegalArgumentException("Cannot update photo without ID");
-        }
+    public Photo update(Photo photo) { //REWRITTEN
+      if( photo.getId() == null) throw new IllegalArgumentException("Cant update photo without id");
 
-        String sql = "UPDATE photo SET title = ?, description = ?, album_id = ? WHERE id = ?";
-        int updatedRows = jdbcTemplate.update(sql,
-                photo.getTitle(),
-                photo.getDescription(),
-                photo.getAlbum().getId(),
-                photo.getId());
+      String sql = "UPDATE photo SET title = ?, description = ?, album_id = ?, WHERE id = ?";
 
-        if (updatedRows == 0) {
-            throw new ResourceNotFoundException("Photo not found with id: " + photo.getId());
-        }
+      int rowsUpdated = jdbcTemplate.update(sql,
+              photo.getTitle(),
+              photo.getDescription(),
+              photo.getAlbum().getId(),
+              photo.getId());
 
-        return photo;
+      if(rowsUpdated == 0){
+          throw new ResourceNotFoundException("Photo not found with id " + photo.getId());
+      }
+      return photo;
     }
 
     @Override
@@ -123,14 +118,30 @@ public class PhotoRepository implements PhotoDAO {
 
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
+    std::shared_ptr<Line> get_selected_line() {
+        // First check bounds to avoid exceptions
+        if (selected_line_index < sline.size()) {
+
+            try {
+                return sline.at(selected_line_index);
+            } catch (const std::out_of_range & e)
+            {
+                Logger::Debug ("");
+                return nptr;
+            }
+        }
+
+        // Return nullptr for invalid access
+        return nullptr;
+    }
 
     @Override
     public List<Photo> findByAlbumId(Long albumId, int offset, int limit) {
-        String sql = "SELECT p.*, a.id as album_id, a.title as album_title, " +
-                "a.description as album_description, a.created_at as album_created_at " +
-                "FROM photo p " +
-                "JOIN album a ON p.album_id = a.id " +
-                "WHERE p.album_id = ? " +
+        String sql = "SELECT photo.*, album.id, album.title, " +
+                "album.description, album.created_at " +
+                "FROM photo " +
+                "JOIN album ON photo.album_id = album.id " +
+                "WHERE photo.album_id = ? " +
                 "LIMIT ? OFFSET ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -139,7 +150,6 @@ public class PhotoRepository implements PhotoDAO {
             album.setTitle(rs.getString("album_title"));
             album.setDescription(rs.getString("album_description"));
             album.setCreatedAt(rs.getTimestamp("album_created_at").toLocalDateTime());
-
             return Photo.fromResultSet(rs, album);
         }, albumId, limit, offset);
     }

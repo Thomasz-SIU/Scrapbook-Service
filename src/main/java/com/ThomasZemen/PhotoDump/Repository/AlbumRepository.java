@@ -1,6 +1,7 @@
 package com.ThomasZemen.PhotoDump.Repository;
 
 import com.ThomasZemen.PhotoDump.DAO.AlbumDAO;
+import com.ThomasZemen.PhotoDump.Exception.ResourceNotFoundException;
 import com.ThomasZemen.PhotoDump.Model.Album;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -54,16 +55,19 @@ public class AlbumRepository implements AlbumDAO {
             // Update existing album
             String sql = "UPDATE album SET title = ?, description = ? WHERE id = ?";
             jdbcTemplate.update(sql, album.getTitle(), album.getDescription(), album.getId());
+
+            update(album);
+            //TODO::REPLACE WITH EXISTING UPDATE FUNCTION CALL;
         }
         return album;
     }
 
     @Override
     public List<Album> findEmptyAlbums() {
-        String sql = "SELECT a.* FROM album a " +
-                "LEFT JOIN photo p ON a.id = p.album_id " +
-                "GROUP BY a.id " +
-                "HAVING COUNT(p.id) = 0";
+        String sql = "SELECT * FROM album " +
+                "LEFT JOIN photo ON album.id = photo.album_id " +
+                "GROUP BY album.id " +
+                "HAVING COUNT(photo.id) = 0";
         return jdbcTemplate.query(sql, (rs, rowNum) -> Album.fromResultSet(rs));
     }
 
@@ -98,12 +102,17 @@ public class AlbumRepository implements AlbumDAO {
     }
 
     @Override
-    public Album update(Album album) {
+    public Album update(Album album) { //REWRITTEN
+        if(album.getId() == null) throw new IllegalArgumentException("Album cannot have missing ID");
+
         String sql = "UPDATE album SET title = ?, description = ? WHERE id = ?";
-        jdbcTemplate.update(sql,
-                album.getTitle(),
-                album.getDescription(),
-                album.getId());
+        int rowsUpdated = jdbcTemplate.update(sql,
+                                            album.getTitle(),
+                                            album.getDescription(),
+                                            album.getId());
+        if(rowsUpdated == 0){
+            throw new ResourceNotFoundException("No album with ID " + album.getId()+ "exists");
+        }
         return album;
     }
 

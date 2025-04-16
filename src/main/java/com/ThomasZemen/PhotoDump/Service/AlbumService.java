@@ -94,6 +94,7 @@ public class AlbumService {
         album.setDescription(albumDTO.getDescription());
     }
 
+    //TODO::IMPLEMENT USAGE
     public List<Album> getEmptyAlbums() {
         return albumDAO.findEmptyAlbums();
     }
